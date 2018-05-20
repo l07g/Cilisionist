@@ -6,8 +6,8 @@ for file in "$1"/*
 do
 	if [ -f "$file" ]
 	then
-		cat $file
-		printf "\n"
+		cat $file >> archive.txt
+		printf "\n" >> archive.txt
 
 	elif [ -d "$file" ]
 	then
