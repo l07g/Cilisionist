@@ -1,0 +1,12 @@
+NAME
+	ls - list directory contents
+
+SYNOPSIS
+	ls [OPTION]... [FILE]...
+
+DESCRIPTION
+	List information about the FILEs.
+DESCRIPTION
+	man formats and displays the on-line manual pages.
+NAME
+	cat - concatenate files and print on the standard output
