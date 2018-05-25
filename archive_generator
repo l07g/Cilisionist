@@ -1,0 +1,83 @@
+#! /bin/bash
+
+function generate_header(){
+	
+	file=$1
+	printf "directory $file" >> archive.txt
+	printf "\n" >> archive.txt
+	
+	for file in "$1"/*
+	do
+		# --- Affichage du nom du fichier/dossier --- #	
+		fullfilename=$(basename $file)
+		filename=${fullfilename%.*}
+		if [ "$filename" != "*" ]
+		then
+			printf "$filename " >> archive.txt
+
+			#Alternative mais qui affiche l'intégralité du chemin à partir du répertoire de départ
+			#ls -l -d $file | awk '{printf $(NF)}' >> archive.txt
+
+			# --- Affichage des droits du fichier/dossier --- #
+			printf " " >> archive.txt
+			ls -l -d $file | awk '{printf $(NF-8)}' >> archive.txt
+
+			# --- Affichage de la taille du fichier/dossier --- #
+			printf " " >> archive.txt
+			ls -l -d $file | awk '{printf $(NF-4)}' >> archive.txt
+
+			# --- Affichage des lignes du body si c'est un fichier --- #
+			if [ -f "$file" ]
+			then
+				printf " %d  %d" $line $(cat $file |awk 'END{print NR}') >> archive.txt
+				let "line=line+$(cat $file |awk 'END{print NR}')-1"
+				let "line=line+1"
+			fi
+
+			printf "\n" >> archive.txt
+		fi
+	done
+	
+	printf "@" >> archive.txt
+	printf "\n" >> archive.txt
+
+	for file in "$1"/*
+	do
+		if [ -d "$file" ]
+		then
+			generate_header "$file"
+		fi
+	done
+}
+
+function generate_body(){
+
+	#scan dossier actuel
+	for file in "$1"/*
+	do
+		#Si c'est un fichier...
+		if [ -f "$file" ]
+		then
+			#on met dans un fichier
+			cat $file >> archive.txt
+		fi
+	done
+	
+	for file in "$1"/*
+	do 
+		#Si c'est un dossier...
+		if [ -d "$file" ]
+		then
+			#On recommence dans le nouveau dossier
+			generate_body "$file"
+		fi
+	done
+}
+
+function generate_archive(){
+	line=1
+	generate_header $1
+	generate_body $1
+}
+
+generate_archive $1
