@@ -1,0 +1,51 @@
+#! /bin/bash
+
+file=$1
+function scan_dossier(){
+
+	printf "directory $file" >> test.txt
+	printf "\n" >> test.txt
+	
+	for file in "$1"/*
+	do
+		# --- Affichage du nom du fichier/dossier --- #
+		fullfilename=$(basename $file)
+		filename=${fullfilename%.*}
+		if [ "$filename" != "*" ]
+		then
+			printf "$filename " >> test.txt
+
+			#Alternative mais qui affiche l'intégralité du chemin à partir du répertoire de départ
+			#ls -l -d $file | awk '{printf $(NF)}' >> test.txt
+
+			# --- Affichage des droits du fichier/dossier --- #
+			printf " " >> test.txt
+			ls -l -d $file | awk '{printf $(NF-8)}' >> test.txt
+
+			# --- Affichage de la taille du fichier/dossier --- #
+			printf " " >> test.txt
+			ls -l -d $file | awk '{printf $(NF-4)}' >> test.txt
+
+			# --- Affichage des lignes du body si c'est un fichier --- #
+			if [ -f "$file" ]
+			then
+				printf " " >> test.txt
+				printf "LA SUITE" >> test.txt
+			fi
+
+			printf "\n" >> test.txt
+		fi
+	done
+	
+	printf "@" >> test.txt
+	printf "\n" >> test.txt
+
+	for file in "$1"/*
+	do
+		if [ -d "$file" ]
+		then
+			scan_dossier "$file"
+		fi
+	done
+}
+scan_dossier $1
