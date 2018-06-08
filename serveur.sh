@@ -91,24 +91,42 @@ function commande-vsh() {
 			debut_header="$(head -1 $2 | awk 'BEGIN {FS=":"; FNR=1} {print $1}')"
 			echo "debut du header: $debut_header"
 			debut_body="$(head -1 $2 | awk 'BEGIN {FS=":"; FNR=1} {print $2}')"
+			debut_body="$(echo $debut_body | tr -d '\r' )"
 			echo "debut du body: $debut_body"
 			
-			nligne_courante="$debut_header"
-			echo "ligne courante: $nligne_courante"
-			ligne_courante="$(cat $2 | awk -v nligne="$nligne_courante" '{if(NR==nligne) {print $0}}' )"
-			echo "$ligne_courante"
-		 	echo "mashallah on a réussi"	
+			echo "ligne courante: $debut_header"
 
-			for i in range 'seq $debut_header $debut_body';
+			for i in `seq $debut_header $((debut_body-1))`;
 			do
-				echo "aquecoucou"
-				if [ "$ligne_courante" =~ "/^directory/" ];
+				
+				ligne_courante="$(cat $2 | awk -v nligne="$i" '{if(NR==nligne) {print $0}}' )"
+				echo "ligne courante: $ligne_courante"
+
+				fmm="$( echo $ligne_courante | grep -ce "^directory" )"
+				if [ $fmm -eq 1 ];
 				then
 					directory="$(echo "$ligne_courante" | awk '{print $2}')"
+					directory="$(echo $directory | tr -d '\r' )"
 					mkdir -p "$directory"
-					echo "création dossier: directory"
+					echo "création dossier: $directory"
 				fi
-				n_lignecourante="$n_lignecourante"+1
+				
+				ligne_debut_fichier="$(echo $ligne_courante | awk '{if (NF==5) {print $4 } else {print '-1'}}')"
+				n_ligne_fichier="$(echo $ligne_courante | awk '{if (NF==5) {print $5 } else {print '-1'}}')"
+				n_ligne_fichier="$(echo $n_ligne_fichier | tr -d '\r' )"
+				
+				if [ $ligne_debut_fichier -gt -1 ];
+				then
+
+					nom_fichier="$(echo $ligne_courante | awk '{print $1}')"
+					racine="$directory/$nom_fichier"
+					echo "root= $racine"
+					ligne_debut_fichier=$(($debut_body+$ligne_debut_fichier-1))
+					ligne_fin_fichier=$(($ligne_debut_fichier+$n_ligne_fichier-1))
+					sed "$ligne_debut_fichier,$ligne_fin_fichier!d" $2 
+					sed "$ligne_debut_fichier,$ligne_fin_fichier!d" $2 >> "$racine"
+				fi
+				
 
 			done
 			echo "c'est fini"
