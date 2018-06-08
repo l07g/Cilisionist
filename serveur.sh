@@ -87,6 +87,7 @@ function commande-vsh() {
 		echo "wesh, cette partie est encore en construction"
 		if [ -f $2 ];
 		then
+			printf "\n Initialisation de l'extraction \n"
 			debut_header="$(head -1 $2 | awk 'BEGIN {FS=":"; FNR=1} {print $1}')"
 			echo "debut du header: $debut_header"
 			debut_body="$(head -1 $2 | awk 'BEGIN {FS=":"; FNR=1} {print $2}')"
@@ -94,20 +95,23 @@ function commande-vsh() {
 			
 			nligne_courante="$debut_header"
 			echo "ligne courante: $nligne_courante"
-			ligne_courante="$(awk NR==$nligne_courante)"
+			ligne_courante="$(cat $2 | awk -v nligne="$nligne_courante" '{if(NR==nligne) {print $0}}' )"
 			echo "$ligne_courante"
-			
+		 	echo "mashallah on a réussi"	
 
-			#erreur de merde a la con qui fait chier: problÃ¨me de guillements dans le while
-
-			while [ $ligne_courante -lt $debut_body ]
+			for i in range 'seq $debut_header $debut_body';
 			do
+				echo "aquecoucou"
 				if [ "$ligne_courante" =~ "/^directory/" ];
 				then
 					directory="$(echo "$ligne_courante" | awk '{print $2}')"
 					mkdir -p "$directory"
+					echo "création dossier: directory"
 				fi
+				n_lignecourante="$n_lignecourante"+1
+
 			done
+			echo "c'est fini"
 		else
 			"wallah, tu n'as pas entre un nom d'archive valide"
 		fi
