@@ -1,10 +1,11 @@
 #! /bin/bash
 
+#La variable bbody permet d'incrémenter à chaque changement de ligne afin de mémoriser le début du body
 function generate_header(){
 	
 	file=$1
 	printf "directory $file" >> archive.txt
-	printf "\n" >> archive.txt
+	printf "\n" >> archive.txt ; bbody=$((bbody+1))
 	
 	for file in "$1"/*
 	do
@@ -34,12 +35,12 @@ function generate_header(){
 				let "line=line+1"
 			fi
 
-			printf "\n" >> archive.txt
+			printf "\n" >> archive.txt ; bbody=$((bbody+1))
 		fi
 	done
 	
 	printf "@" >> archive.txt
-	printf "\n" >> archive.txt
+	printf "\n" >> archive.txt ; bbody=$((bbody+1))
 
 	for file in "$1"/*
 	do
@@ -76,7 +77,11 @@ function generate_body(){
 
 function generate_archive(){
 	line=1
+	bbody=1
+	printf "\n" >> archive.txt ; bbody=$((bbody+1))
 	generate_header $1
+	bbody=$((bbody+1))	
+	sed -i "1i\3:$bbody" archive.txt
 	generate_body $1
 }
 
