@@ -62,14 +62,64 @@ function interaction() {
 
 
 function commande-non-comprise () {
-   echo "Le serveur ne peut pas interpr�ter cette commande"
+	echo "Le serveur ne peut pas interpreter cette commande"
 }
 
-function commande-shutdow() {
-       shutdown -t 10
+function commande-exit() {
+	exit 1
 }
+
+function commande-vsh() {
+	if [ $1 = "-list" ];
+	then
+		ls -l  | grep "archive.*txt"
+	elif [ $1 = "-browse" ]
+	then
+		if [ -f $2 ];
+		then
+			printf "\n"
+			cat $2
+		else
+			echo "wallah, tu n'as pas entre un nom d'archive valide"
+		fi
+	elif [ $1 = "-extract" ]
+	then
+		echo "wesh, cette partie est encore en construction"
+		if [ -f $2 ];
+		then
+			debut_header="$(head -1 $2 | awk 'BEGIN {FS=":"; FNR=1} {print $1}')"
+			echo "debut du header: $debut_header"
+			debut_body="$(head -1 $2 | awk 'BEGIN {FS=":"; FNR=1} {print $2}')"
+			echo "debut du body: $debut_body"
+			
+			nligne_courante="$debut_header"
+			echo "ligne courante: $nligne_courante"
+			ligne_courante="$(awk NR==$nligne_courante)"
+			echo "$ligne_courante"
+			
+
+			#erreur de merde a la con qui fait chier: problème de guillements dans le while
+
+			while [ $ligne_courante -lt $debut_body ]
+			do
+				if [ "$ligne_courante" =~ "/^directory/" ];
+				then
+					directory="$(echo "$ligne_courante" | awk '{print $2}')"
+					mkdir -p "$directory"
+				fi
+			done
+		else
+			"wallah, tu n'as pas entre un nom d'archive valide"
+		fi
+	else
+		echo "mashallah, t'as entré une option invalide, essaie plutot -list, -browse ou -extract"
+	fi
+}
+
+
 
 
 # On accepte et traite les connexions
 
 accept-loop
+
