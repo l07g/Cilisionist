@@ -58,8 +58,7 @@ function interaction() {
     done
 }
 
-# Les fonctions implémentant les différentes commandes du serveur
-
+#fonctions commande
 
 function commande-non-comprise () {
 	echo "Le serveur ne peut pas interpreter cette commande"
@@ -68,6 +67,7 @@ function commande-non-comprise () {
 function commande-exit() {
 	exit 1
 }
+
 
 function commande-vsh() {
 	if [ $1 = "-list" ];
@@ -79,12 +79,12 @@ function commande-vsh() {
 		then
 			printf "\n"
 			cat $2
+			
 		else
-			echo "wallah, tu n'as pas entre un nom d'archive valide"
+			echo "nom d'archive invalide"
 		fi
 	elif [ $1 = "-extract" ]
 	then
-		echo "wesh, cette partie est encore en construction"
 		if [ -f $2 ];
 		then
 			printf "\n Initialisation de l'extraction \n"
@@ -131,10 +131,10 @@ function commande-vsh() {
 			done
 			echo "c'est fini"
 		else
-			"wallah, tu n'as pas entre un nom d'archive valide"
+			"nom d'archive invalide"
 		fi
 	else
-		echo "mashallah, t'as entrÃ© une option invalide, essaie plutot -list, -browse ou -extract"
+		echo "option invalide, essayez plutot -list, -browse ou -extract"
 	fi
 }
 
